@@ -23,8 +23,14 @@ combined_data = []
 #Format date
 def reformat_date(date_str):
     try:
-        date_obj = datetime.strptime(date_str, "%d.%m.%Y")
-        return date_obj.strftime("%A, %d, %B, %Y")
+        # date_obj = datetime.strptime(date_str, "%d.%m.%Y")
+        # return date_obj.strftime("%A, %d, %B, %Y")
+        # Convert the string to a datetime object
+        date_obj = pd.to_datetime(date_str, format="%d.%m.%Y")
+
+        # Convert the datetime object to an Excel date (numeric representation)
+        excel_date = (date_obj - pd.Timestamp('1899-12-30')).days
+        return excel_date
     except ValueError:
         return ""
 
@@ -45,9 +51,10 @@ def extract_invoice_details(text):
     reseller_city = re.search(r"Shipping\s+Address\s*:\s*(?:[\s\S]+?)\n([A-Za-z\s]+)\s*,\s*[A-Za-z\s]+,\s*\d{6}(?=\s*IN)", text, re.IGNORECASE)
     reseller_pincode = re.search(r"Shipping\s+Address\s*:\s*[\s\S]+?(\d{6})(?=\s*IN)", text, re.IGNORECASE)
     group_code = re.search(r"F\/PLZ\/RYN\/\d", text, re.IGNORECASE)
-    style_code = re.search(r"F\/[A-Z]+\/[A-Z]+\/\d+(?:\.\d+)?\/[A-Z0-9]+", text)
     color_code =re.search(r"F\/[A-Z]+\/[A-Z]+\/\d+(?:\.\d+)?\/([A-Z0-9]+)", text)
-    size = re.search(r"\/(\d+[A-Z]+)\s*\)", text, re.IGNORECASE)
+    # style_code = re.search(r"F\/[A-Z]+\/[A-Z]+\/\d+(?:\.\d+)?\/[A-Z0-9]+", text)
+    # size = re.search(r"\/(\d+[A-Z]+)\s*\)", text, re.IGNORECASE)
+    
     
 
     formatted_invoice_date = reformat_date(invoice_date.group(1)) if invoice_date else " "
@@ -60,6 +67,7 @@ def extract_invoice_details(text):
         "Invoice Date": formatted_invoice_date,
         "Order Status": "",
         "Payment Date": payment_date.group(1) if payment_date else " ",
+        "Cost": "",
         "Delivery Charges": "",
         "Payout Amount": "",
         "Profit": "",
@@ -82,10 +90,12 @@ def extract_invoice_details(text):
         "Reseller City": reseller_city.group(1) if reseller_city else " ",
         "Reseller pincode": reseller_pincode.group(1) if reseller_pincode else " ",
         "Order Number": sub_order_no.group(1) if sub_order_no else " ",
-        "Group code": group_code.group(0) if group_code else " ",
-        "Style code": style_code.group(0) if style_code else " ",
-        "Color code": color_code.group(1) if color_code else " ",
-        "Size": size.group(1) if size else " "
+        "Group Code": group_code.group(0) if group_code else " ",
+        # "Style code": style_code.group(0) if style_code else " ",
+        "style Code": f"{group_code.group(0) if group_code else " "}/{color_code.group(1) if color_code else " "}",
+        "Color Code": color_code.group(1) if color_code else " ",
+        # "Size": size.group(1) if size else " ",
+        "size": ""
     }
 
 #Extract SINo. and Qty from table
@@ -198,7 +208,7 @@ for pdf_path in pdf_paths:
                 else:
                     order_si_no_tracker[order_number] = 1
                 order_no_si_no = f"{order_number}_{order_si_no_tracker[order_number]}"
-                combined_data.append({**invoice, "Qty": table["Qty"], "Invoice Amount": table["Total Amount"], "Sub Order No.": order_no_si_no})
+                combined_data.append({**invoice, "Qty": int(table["Qty"]), "Invoice Amount": float(table["Total Amount"].replace('₹', '').strip()), "Sub Order No.": order_no_si_no})
 
 # Save combined data after processing all PDFs
 if combined_data:
@@ -207,7 +217,20 @@ if combined_data:
     columns = df.columns.tolist()
     columns.remove("Sub Order No.")
     columns.insert(1, "Sub Order No.")
+    
     df = df[columns]
+    column_to_move = df.pop('Qty')
+    df.insert(4, 'Qty', column_to_move)
+
+    column_to_move = df.pop('Invoice Amount')
+    df.insert(9, 'Invoice Amount', column_to_move)
+
+    df.insert(22, 'Shipment Id/AWB', None)
+    df.insert(32, 'Exchanged  AWB(In another sheet)', None)
+    df.insert(33, 'Return Partner', None)
+    df.insert(34, 'Return Id/AWB', None)
+    
+    
     df.to_excel(excel_path, index=False)
 
     print(f"Data extracted and saved to Excel successfully: {excel_path}")
