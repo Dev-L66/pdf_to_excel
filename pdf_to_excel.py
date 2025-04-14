@@ -10,17 +10,18 @@ import glob
 
 logging.getLogger("pdfminer").setLevel(logging.ERROR)
 # Define the pytesseract path, also set it's path in system environment 
-pytesseract.pytesseract.tesseract_cmd = r''
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
 
 
 # Define the folder containing PDFs
-pdf_folder = r""
+pdf_folder = r"c:\Users\sasas\OneDrive\Desktop\New folder"
 
 # Get all PDF file paths from the folder
 pdf_paths = glob.glob(os.path.join(pdf_folder, "*.pdf"))
 
 #Define your excel path
-excel_path = r""
+excel_path = r"C:\Users\sasas\OneDrive\Desktop\output.xlsx"
 
 ordered_list = []
 
@@ -38,14 +39,14 @@ def extract_invoice_details(text):
     order_no = re.search(r"Order Number" + r"[:\s]*([0-9\-]+)", text, re.IGNORECASE)
     invoice_date = re.search(r'Invoice Date\s*:\s*(\d{2}\.\d{2}\.\d{4})', text, re.IGNORECASE)
     order_date = re.search(r"Order Date[:\s]*([0-9]{2}\.[0-9]{2}\.[0-9]{4})", text, re.IGNORECASE)
-    shipmentId_awb = re.search(r'AWB[#:\s]*([0-9]{9,20})', text, re.IGNORECASE)
+    shipmentId_awb = re.search(r'(?:AWB|SWB)[#\s:]*(\d{9,20})', text, re.IGNORECASE)
     customer_name = re.search(r'Ship To:.*\n\s*([a-zA-Z][^\n]+)', text, re.IGNORECASE)
     customer_address = re.search(r'Ship To:.*?\n+(?:.*\n+)?(?:.*\n+)?([^\n]*?(?:\n(?!\s*Invoice|\s*Total|\s*Amount|\s*AWB|\s*Order ID|\s*Shipped|\s*Landmark|\s*NDL).+)+)', text, re.IGNORECASE)
     customer_state = re.search(r"Place of delivery:\s*([A-Za-z\s]+)(?=\n|$)", text, re.IGNORECASE)
     customer_city = re.search(r"Shipping\s+Address\s*:.*?\n(?:.*\n)*?([A-Za-z]+),\s*[A-Z\s]+,\s*\d{6}\s*\nIN", text, re.IGNORECASE)
     customer_pincode = re.search(r"Shipping\s+Address\s*:\s*[\s\S]+?(\d{6})(?=\s*IN)", text, re.IGNORECASE)
-    group_code = re.search(r"F\/PLZ\/RYN\/\d", text, re.IGNORECASE)
-    color_code =re.search(r"F\/[A-Z]+\/[A-Z]+\/\d+(?:\.\d+)?\/([A-Z0-9]+)", text)
+    group_code = re.search(r"(?:F)?\/[A-Z]+\/[A-Z]+\/\d+", text, re.IGNORECASE)
+    color_code = re.search(r"(?:F)?\/[A-Z]+\/[A-Z]+\/\d+(?:\.\d+)?\/([A-Z0-9]+)", text, re.IGNORECASE)
     #Format date to excel date
     formatted_invoice_date = reformat_date(invoice_date.group(1)) if invoice_date else " "
     formatted_order_date = reformat_date(order_date.group(1)) if order_date else " "
@@ -95,7 +96,7 @@ def extract_invoice_details(text):
     }
 
 
-def extract_pdf(pdf_path):
+def extract_pdf(pdf_paths):
  for pdf_path in pdf_paths:
   with pdfplumber.open(pdf_path) as pdf:
     for page in pdf.pages:
@@ -145,4 +146,4 @@ for item in ordered_list:
     print(item)
 
 df = pd.DataFrame(ordered_list, columns=["Product SKU","Sub Order No.", "Company", "Delivery Partner", "Qty", "Invoice Date", "Order Status", "Payment", "Cost", "Total Amount","Delivery Charges",  "Payout Amount","Profit","Payout Done?","Order Date","Pickup Date","Return Type","Return/Exchange Issue", "Return/Exchange/Rating Comment","Rating","Cashback","ShipmentId/AWB", "Customer Name", "Customer Address", "Customer State", "Customer City", "Customer Pincode","Reseller Name", "Reseller Address", "Reseller State", "Reseller City", "Reseller Pincode","Exchanged  AWB(In another sheet)","Return Partner", "Return Id/AWB", "Order No.", "Group Code", "Style Code","Color Code","Size","Contact"])
-df.to_excel(excel_path,index = False )
+df.to_excel(excel_path,index = False)
