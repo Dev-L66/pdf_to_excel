@@ -9,17 +9,18 @@ import os
 import glob
 
 logging.getLogger("pdfminer").setLevel(logging.ERROR)
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# Define the pytesseract path, also set it's path in system environment 
+pytesseract.pytesseract.tesseract_cmd = r''
 
 
 # Define the folder containing PDFs
-pdf_folder = r"C:\Users\sasas\OneDrive\Desktop\New folder"
+pdf_folder = r""
 
 # Get all PDF file paths from the folder
 pdf_paths = glob.glob(os.path.join(pdf_folder, "*.pdf"))
 
 #Define your excel path
-excel_path = r"C:\Users\sasas\OneDrive\Desktop\output.xlsx"
+excel_path = r""
 
 ordered_list = []
 
