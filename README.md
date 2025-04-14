@@ -27,6 +27,6 @@ pdf_folder = r"your/invoice/folder/path"
 excel_path = r"your/output/excel/file.xlsx"
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-
 To run the script:
-python pdf_to_excel.py
+- Clone the repo.
+- python pdf_to_excel.py
