@@ -9,6 +9,7 @@ The extracted data is saved into a structured **Excel file**.
 
 -  Extracts key invoice metadata (Order No., Invoice Date, Customer Info, etc.)
 -  Extracts tabular product data (SKU, Qty, Amount, etc.)
+-  Extracts barcodes
 -  Supports batch processing of multiple PDFs
 -  Saves all extracted info into a single **Excel spreadsheet**
 
@@ -18,14 +19,12 @@ The extracted data is saved into a structured **Excel file**.
 
 - Python 3.x
 - Install the packages: pip install -r requirements.txt
-- Tesseract OCR must be installed separately:
-  [https://github.com/UB-Mannheim/tesseract/wiki](https://github.com/UB-Mannheim/tesseract/wiki)
-  Add the Tesseract executable path to your environment variables.
+
 
 Set:
 pdf_folder = r"your/invoice/folder/path"
 excel_path = r"your/output/excel/file.xlsx"
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
 
 To run the script:
 - Clone the repo.
