@@ -14,13 +14,13 @@ logging.getLogger("pdfminer").setLevel(logging.ERROR)
 
 
 # Define the folder containing PDFs
-pdf_folder = r"c:\Users\sasas\OneDrive\Desktop\New folder"
+pdf_folder = r""
 
 # Get all PDF file paths from the folder
 pdf_paths = glob.glob(os.path.join(pdf_folder, "*.pdf"))
 
 #Define your excel path
-excel_path = r"C:\Users\sasas\OneDrive\Desktop\output.xlsx"
+excel_path = r""
 
 ordered_list = []
 
@@ -90,8 +90,6 @@ def extract_invoice_details(text):
         "Color Code": color_code.group(1) if color_code else " ",
         "Size": " ",
         "Contact": " "
-
-
         
     }
 
