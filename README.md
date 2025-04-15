@@ -1,4 +1,4 @@
-#  Amazon Invoice PDF Extractor with Table Parsing and OCR
+#  Amazon Invoice PDF Extractor(Text, Tables, Images)
 
 This Python script automates the extraction of data from **Amazon invoice PDFs**, including invoice details and product table rows for a specific type of Amazon bill. 
 The extracted data is saved into a structured **Excel file**.
@@ -21,9 +21,9 @@ The extracted data is saved into a structured **Excel file**.
 - Install the packages: pip install -r requirements.txt
 
 
-Set:
-pdf_folder = r"your/invoice/folder/path"
-excel_path = r"your/output/excel/file.xlsx"
+Set the paths:
+- pdf_folder = r"your/invoice/folder/path"
+- excel_path = r"your/output/excel/file.xlsx"
 
 
 To run the script:
