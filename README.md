@@ -10,7 +10,6 @@ The extracted data is saved into a structured **Excel file**.
 -  Extracts key invoice metadata (Order No., Invoice Date, Customer Info, etc.)
 -  Extracts tabular product data (SKU, Qty, Amount, etc.)
 -  Extracts barcodes
--  Supports batch processing of multiple PDFs
 -  Saves all extracted info into a single **Excel spreadsheet**
 
 ---
