@@ -28,4 +28,4 @@ Set the paths:
 
 To run the script:
 - Clone the repo.
-- python pdf_to_excel.py
+- Run the command: python pdf_to_excel.py
