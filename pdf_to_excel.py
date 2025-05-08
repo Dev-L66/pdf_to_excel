@@ -148,7 +148,7 @@ def extract_pdf(pdf_paths):
                         sku_match = re.search(r"\(\s*([A-Z0-9/.\-]+)\s*\)", description)
                         product_sku = sku_match.group(1) if sku_match else " "
                         slno = row["Sl.\nNo"]
-                        qty = float(row["Qty"])
+                        qty = int(row["Qty"])
                         total_amount = float(row["Total\nAmount"].replace('₹', '').strip())
                         ordered_list.append((product_sku, f"{details["Order Number"]}_{slno}",f"{details["Company"]}", details["Delivery Partner"], qty, details["Invoice Date"], details["Order Status"], details["Payment"],details["Cost"], total_amount, details["Delivery Charges"],  details["Payout Amount"],details["Profit"],details["Payout Done?"],details["NOTE"],details["Order Date"],details["Pickup Date"],details["Return Type"],details["Return/Exchange Issue"], details["Return/Exchange/Rating Comment"],details["Rating"],details["Cashback"], barcode_data, r_details["Customer Name"], r_details["Customer Address"], details["Customer State"], details["Customer City"], details["Customer Pincode"], r_details["Reseller Name"], r_details["Reseller Address"], details["Reseller State"], details["Reseller City"], details["Reseller Pincode"],"","","", details["Order Number"],details["Group Code"], details["Style Code"],details["Color Code"],details["Size"],details["Contact"]))
        except FileNotFoundError:
