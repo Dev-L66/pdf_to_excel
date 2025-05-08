@@ -14,13 +14,13 @@ logging.getLogger("pdfminer").setLevel(logging.ERROR)
 
 
 # Define the folder containing PDFs
-pdf_folder = r""
+pdf_folder = r"C:\Users\sasas\OneDrive\Desktop\New folder"
 
 # Get all PDF file paths from the folder
 pdf_paths = glob.glob(os.path.join(pdf_folder, "*.pdf"))
 
 #Define your excel path
-excel_path = r""
+excel_path = r"C:\Users\sasas\OneDrive\Desktop\output.xlsx"
 
 ordered_list = []
 
@@ -65,6 +65,7 @@ def extract_invoice_details(text):
         "Payout Amount": " ",
         "Profit": " ",
         "Payout Done?": " ",
+        "NOTE":" ",
         "Order Date": formatted_order_date,
         "Pickup Date": " ",
         "Return Type": " ",
@@ -147,9 +148,9 @@ def extract_pdf(pdf_paths):
                         sku_match = re.search(r"\(\s*([A-Z0-9/.\-]+)\s*\)", description)
                         product_sku = sku_match.group(1) if sku_match else " "
                         slno = row["Sl.\nNo"]
-                        qty = row["Qty"]
-                        total_amount = row["Total\nAmount"].replace('₹', '').strip()
-                        ordered_list.append((product_sku, f"{details["Order Number"]}_{slno}",f"{details["Company"]}", details["Delivery Partner"], qty, details["Invoice Date"], details["Order Status"], details["Payment"],details["Cost"], total_amount, details["Delivery Charges"],  details["Payout Amount"],details["Profit"],details["Payout Done?"],details["Order Date"],details["Pickup Date"],details["Return Type"],details["Return/Exchange Issue"], details["Return/Exchange/Rating Comment"],details["Rating"],details["Cashback"], barcode_data, r_details["Customer Name"], r_details["Customer Address"], details["Customer State"], details["Customer City"], details["Customer Pincode"], r_details["Reseller Name"], r_details["Reseller Address"], details["Reseller State"], details["Reseller City"], details["Reseller Pincode"],"","","", details["Order Number"],details["Group Code"], details["Style Code"],details["Color Code"],details["Size"],details["Contact"]))
+                        qty = float(row["Qty"])
+                        total_amount = float(row["Total\nAmount"].replace('₹', '').strip())
+                        ordered_list.append((product_sku, f"{details["Order Number"]}_{slno}",f"{details["Company"]}", details["Delivery Partner"], qty, details["Invoice Date"], details["Order Status"], details["Payment"],details["Cost"], total_amount, details["Delivery Charges"],  details["Payout Amount"],details["Profit"],details["Payout Done?"],details["NOTE"],details["Order Date"],details["Pickup Date"],details["Return Type"],details["Return/Exchange Issue"], details["Return/Exchange/Rating Comment"],details["Rating"],details["Cashback"], barcode_data, r_details["Customer Name"], r_details["Customer Address"], details["Customer State"], details["Customer City"], details["Customer Pincode"], r_details["Reseller Name"], r_details["Reseller Address"], details["Reseller State"], details["Reseller City"], details["Reseller Pincode"],"","","", details["Order Number"],details["Group Code"], details["Style Code"],details["Color Code"],details["Size"],details["Contact"]))
        except FileNotFoundError:
         print(f"File not found: {pdf_path}") 
        except Exception as e:
@@ -161,7 +162,7 @@ extract_pdf(pdf_paths)
     # print(item)
 
 try:
- df = pd.DataFrame(ordered_list, columns=["Product SKU","Sub Order No.", "Company", "Delivery Partner", "Qty", "Invoice Date", "Order Status", "Payment", "Cost", "Total Amount","Delivery Charges",  "Payout Amount","Profit","Payout Done?","Order Date","Pickup Date","Return Type","Return/Exchange Issue", "Return/Exchange/Rating Comment","Rating","Cashback","ShipmentId/AWB", "Customer Name", "Customer Address", "Customer State", "Customer City", "Customer Pincode","Reseller Name", "Reseller Address", "Reseller State", "Reseller City", "Reseller Pincode","Exchanged  AWB(In another sheet)","Return Partner", "Return Id/AWB", "Order No.", "Group Code", "Style Code","Color Code","Size","Contact"]) 
+ df = pd.DataFrame(ordered_list, columns=["Product SKU","Sub Order No.", "Company", "Delivery Partner", "Qty", "Invoice Date", "Order Status", "Payment", "Cost", "Total Amount","Delivery Charges",  "Payout Amount","Profit","Payout Done?","NOTE","Order Date","Pickup Date","Return Type","Return/Exchange Issue", "Return/Exchange/Rating Comment","Rating","Cashback","ShipmentId/AWB", "Customer Name", "Customer Address", "Customer State", "Customer City", "Customer Pincode","Reseller Name", "Reseller Address", "Reseller State", "Reseller City", "Reseller Pincode","Exchanged  AWB(In another sheet)","Return Partner", "Return Id/AWB", "Order No.", "Group Code", "Style Code","Color Code","Size","Contact"]) 
  if not df.empty:
     try: 
      df.to_excel(excel_path,index = False, engine='openpyxl' )
