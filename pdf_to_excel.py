@@ -1,5 +1,6 @@
 from pyzbar.pyzbar import decode
 from PIL import Image
+import pytesseract
 import pandas as pd
 import numpy as np
 import pdfplumber
@@ -14,13 +15,13 @@ logging.getLogger("pdfminer").setLevel(logging.ERROR)
 
 
 # Define the folder containing PDFs
-pdf_folder = r""
+pdf_folder = r"C:\Users\sasas\OneDrive\Desktop\New folder"
 
 # Get all PDF file paths from the folder
 pdf_paths = glob.glob(os.path.join(pdf_folder, "*.pdf"))
 
 #Define your excel path
-excel_path = r""
+excel_path = r"C:\Users\sasas\OneDrive\Desktop\output.xlsx"
 
 ordered_list = []
 
@@ -47,6 +48,7 @@ def extract_invoice_details(text):
     customer_pincode = re.search(r"Shipping\s+Address\s*:\s*[\s\S]+?(\d{6})(?=\s*IN)", text, re.IGNORECASE)
     group_code = re.search(r"(?:F)?\/[A-Z]+\/[A-Z]+\/\d+", text, re.IGNORECASE)
     color_code = re.search(r"(?:F)?\/[A-Z]+\/[A-Z]+\/\d+(?:\.\d+)?\/([A-Z0-9]+)", text, re.IGNORECASE)
+    delivery_partner = re.search(r'ATSPL_(.+)', text, re.IGNORECASE)
 
     #Format date to excel date
     formatted_invoice_date = reformat_date(invoice_date.group(1)) if invoice_date else " "
@@ -56,7 +58,7 @@ def extract_invoice_details(text):
     return{
         "Order Number": order_no.group(1) if order_no else "",
         "Company": "Amazon",
-        "Delivery Partner": "Easy Ship",
+        "Delivery Partner": delivery_partner.group(1).strip() if delivery_partner else "Easy Ship",
         "Invoice Date": formatted_invoice_date,
         "Order Status": " ",
         "Payment": " ",
@@ -119,11 +121,18 @@ def extract_pdf(pdf_paths):
                 print("Reading barcodes...")
                 barcodes = decode(open_cv_image)
                 for barcode in barcodes:
-                    barcode_data = barcode.data.decode('utf-8')
+                  barcode_data = barcode.data.decode('utf-8')
+                gray = cv2.cvtColor(open_cv_image, cv2.COLOR_BGR2GRAY)
+                text_img = pytesseract.image_to_string(gray)
+                try:
+                 delivery = extract_invoice_details(text_img)
+                except AttributeError:
+                  print("Pattern not found.")             
                 
             else:
                 details = extract_invoice_details(text)
-                r_details = extract_invoice_details(r_text) 
+                r_details = extract_invoice_details(r_text)
+ 
                 
             
 
@@ -150,7 +159,7 @@ def extract_pdf(pdf_paths):
                         slno = row["Sl.\nNo"]
                         qty = int(row["Qty"])
                         total_amount = float(row["Total\nAmount"].replace('₹', '').strip())
-                        ordered_list.append((product_sku, f"{details["Order Number"]}_{slno}",f"{details["Company"]}", details["Delivery Partner"], qty, details["Invoice Date"], details["Order Status"], details["Payment"],details["Cost"], total_amount, details["Delivery Charges"],  details["Payout Amount"],details["Profit"],details["Payout Done?"],details["NOTE"],details["Order Date"],details["Pickup Date"],details["Return Type"],details["Return/Exchange Issue"], details["Return/Exchange/Rating Comment"],details["Rating"],details["Cashback"], barcode_data, r_details["Customer Name"], r_details["Customer Address"], details["Customer State"], details["Customer City"], details["Customer Pincode"], r_details["Reseller Name"], r_details["Reseller Address"], details["Reseller State"], details["Reseller City"], details["Reseller Pincode"],"","","", details["Order Number"],details["Group Code"], details["Style Code"],details["Color Code"],details["Size"],details["Contact"]))
+                        ordered_list.append((product_sku, f"{details["Order Number"]}_{slno}",f"{details["Company"]}", delivery["Delivery Partner"], qty, details["Invoice Date"], details["Order Status"], details["Payment"],details["Cost"], total_amount, details["Delivery Charges"],  details["Payout Amount"],details["Profit"],details["Payout Done?"],details["NOTE"],details["Order Date"],details["Pickup Date"],details["Return Type"],details["Return/Exchange Issue"], details["Return/Exchange/Rating Comment"],details["Rating"],details["Cashback"], barcode_data, r_details["Customer Name"], r_details["Customer Address"], details["Customer State"], details["Customer City"], details["Customer Pincode"], r_details["Reseller Name"], r_details["Reseller Address"], details["Reseller State"], details["Reseller City"], details["Reseller Pincode"],"","","", details["Order Number"],details["Group Code"], details["Style Code"],details["Color Code"],details["Size"],details["Contact"]))
        except FileNotFoundError:
         print(f"File not found: {pdf_path}") 
        except Exception as e:
